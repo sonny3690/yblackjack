@@ -28,9 +28,10 @@ class Player:
 
 
 
-		'''
-	Initializes the class
-	@params card: {String}
+	'''
+	Given a card (String of number and suite), we return the value of it along with
+	the value of the suite.
+	
 	'''
 	def get_each_score (self, card):
 
@@ -54,6 +55,12 @@ class Player:
 
 		return score, suite_diction[suite]
 
+
+
+	'''
+	Goes through all the cards and computes the total player scores. Also keeps track
+	of the highest card value, and accounts for cases in which face cards appear.
+	'''
 	def compute_score (self):
 
 
@@ -70,6 +77,8 @@ class Player:
 			#add this to total player score
 			self.player_score += curr_score
 
+			
+			#this essentially updates the highest card information
 			if curr_score >= self.highest_card[0]:
 
 				if curr_score == self.highest_card[0]:
@@ -82,10 +91,14 @@ class Player:
 		return self.player_score
 
 
+
+	#returns the suite of the highest card
 	def get_highest_card_suite(self):
 		return self.highest_card[1]
 
-
+	
+	#returns the scores, stored in a list of lists, sorted by the score on the 
+	#primary key then the face value
 	def get_sorted_scores (self):
 
 
@@ -97,16 +110,24 @@ class Player:
 		
 
 
+'''
+Class: runs the by running all the rounds, and determines the winner by comparing the scoresz
+'''
 class Game (Player):
 
 
+	'''
+	Initializes the class through initializing the round information
+	'''
 	def __init__ (self, rounds_info):
 		self.rounds_info = rounds_info
 	
 
+	'''
+	Runs the round and prints out whether each of the results matches up with the test cases
+	'''
 	def run_rounds (self): 
 		for round in self.rounds_info:	
-
 
 			determined_winner = self.determine_round_winner (round['playerA'], round['playerB'])
 
@@ -114,11 +135,17 @@ class Game (Player):
 				print('Error: There is a mismatch between the winners')
 				print ('The test case says that player1 win is ' + str(round['playerAWins']) + ' but\
 				the program determined otherwise :(')
+
+			else: 
+				print ('Result is Correct! Both printed out ' + str(determined_winner))
 			
 
 
-	def compare_sorted_scores (self, players):
 
+	'''
+	Compares the sorted scores and returns the winner
+	'''
+	def compare_sorted_scores (self, players):
 
 
 		#get all the sorted scores and put it in a 2d list
@@ -130,7 +157,7 @@ class Game (Player):
 
 		highest_card_winner = True
 
-
+		#prevents index out of bounds errors
 		while index < min (len(player1_scores), len(player2_scores)):
 
 			if player1_scores[index][0] != player2_scores[index][0]:
@@ -146,14 +173,17 @@ class Game (Player):
 		return players[0].get_highest_card_suite() > players[1].get_highest_card_suite()
 
 
+	'''
+	Determines the round winner through first calling the total scores. If a winner
+	cannot be determined, then we have to call compare_sorted_scores
+	'''
+
 	def determine_round_winner (self, player1_round, player2_round):
 
 
 		player1, player2 = Player (player1_round), Player(player2_round)
 
 		scores = player1.compute_score (), player2.compute_score()
-
-
 	
 		#check if they violate the 21 limit
 		for index, score in enumerate(scores):
@@ -169,19 +199,27 @@ class Game (Player):
 
 
 
-
+#runs the rounds through parsing the json and starting the game
 def run_rounds ():
 
 	tests  = parse_json()
+
+	if not tests:
+		print('There was an error parsing the json file')
+		exit(1)
+
 	game = Game (tests)
 	game.run_rounds()
 
 
 
+#parses the json file
 def parse_json ():
 	with open('yoco_tests.json') as f:
 	    return json.load(f)
 
+
+#starts everything
 run_rounds()
 
 
